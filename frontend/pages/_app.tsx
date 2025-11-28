@@ -23,7 +23,7 @@ function MyApp({ Component, pageProps }: AppProps) {
             if (!liff.isLoggedIn()) {
               liff.login();
             }
-            if (liff.isLoggedIn) {
+            if (liff.isLoggedIn()) {
               const idToken = liff.getIDToken();
             }
           })
