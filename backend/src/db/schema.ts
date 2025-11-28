@@ -19,6 +19,11 @@ import {
 
 export const usersTable = pgTable("users", {
   id: serial("id").primaryKey(),
+  displayName: text("display_name").notNull(),
+  age: integer("age").notNull().default(18),
+  gender: text("gender").notNull().default("unspecified"),
+  height: integer("height").notNull().default(170),
+  weight: integer("weight").notNull().default(70),
   health: integer("health_points").notNull().default(10),
   energy: integer("energy_points").notNull().default(10),
   exp: integer("exp_points").notNull().default(0),
@@ -38,4 +43,5 @@ export const questsTable = pgTable("quests", {
   expPoints: integer("exp_points").notNull(),
   progress: integer("progress").notNull().default(0),
   goal: integer("goal").notNull(),
+  completed: boolean("completed").notNull().default(false),
 });

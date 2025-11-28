@@ -7,5 +7,10 @@ export const UserSchema = z.object({
   exp: z.number(),
   rank: z.number(),
   nextLevelExp: z.number(),
+  displayName: z.string(),
+  age: z.number(),
+  gender: z.string(),
+  height: z.number(),
+  weight: z.number(),
 });
 export type User = z.infer<typeof UserSchema>;
