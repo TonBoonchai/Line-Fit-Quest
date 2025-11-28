@@ -2,6 +2,7 @@ import "../styles/globals.css";
 import type { AppProps } from "next/app";
 import type { Liff } from "@line/liff";
 import { useState, useEffect } from "react";
+import { constants } from "buffer";
 
 function MyApp({ Component, pageProps }: AppProps) {
   const [liffObject, setLiffObject] = useState<Liff | null>(null);
@@ -19,6 +20,12 @@ function MyApp({ Component, pageProps }: AppProps) {
           .then(() => {
             console.log("LIFF init succeeded.");
             setLiffObject(liff);
+            if (!liff.isLoggedIn()) {
+              liff.login();
+            }
+            if (liff.isLoggedIn) {
+              const idToken = liff.getIDToken();
+            }
           })
           .catch((error: Error) => {
             console.log("LIFF init failed.");
