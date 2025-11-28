@@ -10,6 +10,7 @@ export const QuestSchema = z.object({
   expPoints: z.number(),
   progress: z.number(),
   goal: z.number(),
+  completed: z.boolean(),
 });
 
 export type Quest = z.infer<typeof QuestSchema>;

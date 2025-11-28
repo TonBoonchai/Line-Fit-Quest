@@ -1,6 +1,7 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { title } from "process";
 import { usersTable } from "../db/schema";
+import { GoogleGenAI } from "@google/genai";
 
 export default class googleGeminiService {
   static genAI = (() => {
@@ -87,6 +88,22 @@ export default class googleGeminiService {
     } catch (error) {
       console.error("Gemini API error:", error);
       throw new Error("Failed to generate quest from Gemini");
+    }
+  }
+
+  static async generateImage(message: string) {
+    try {
+      const model = this.genAI.getGenerativeModel({
+        model: "gemini-2.5-flash-preview-image",
+      });
+      const prompt = `Generate an image based on this description: ${message}`;
+      const result = await model.generateContent(prompt);
+      const response = result.response.text();
+
+      return response;
+    } catch (error) {
+      console.error("Gemini Image API error:", error);
+      throw new Error("Failed to generate image from Gemini");
     }
   }
 }

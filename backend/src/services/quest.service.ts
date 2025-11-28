@@ -7,7 +7,7 @@ export default class QuestService {
   // Quest service methods will be implemented here in the future
   static async generateQuest(userId: number) {
     const quest = await googleGeminiService.sendMessageToGemini(userId);
-    await db.insert(questsTable).values({
+    const result = await db.insert(questsTable).values({
       userId: userId,
       title: quest.title,
       description: quest.description,
@@ -16,7 +16,7 @@ export default class QuestService {
       expPoints: quest.expPoints,
       goal: quest.goal,
     });
-    return quest;
+    return result;
   }
 
   static async getUserQuests(userId: number) {
