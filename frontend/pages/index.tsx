@@ -78,7 +78,10 @@ const Home: NextPage<{ liff: Liff | null; liffError: string | null }> = () => {
         {/* Header: Avatar left, Greeting & Progress stacked right */}
         <div className="flex items-center gap-5">
           {/* Avatar */}
-          <div className="relative w-28 h-28 shrink-0 rounded-full grid place-items-center">
+          <Link
+            href="/my-avatar"
+            className="relative w-28 h-28 shrink-0 rounded-full grid place-items-center"
+          >
             <div className="absolute inset-0 rounded-full ring-4 ring-[#06C755]" />
             {mock.avatarUrl ? (
               <img
@@ -89,13 +92,16 @@ const Home: NextPage<{ liff: Liff | null; liffError: string | null }> = () => {
             ) : (
               <div className="relative z-10 w-28 h-28 rounded-full bg-gray-300" />
             )}
-          </div>
+          </Link>
           {/* Right stack */}
           <div className="flex flex-col gap-3 flex-1">
             <h1 className="text-4xl font-bold text-[#06C755] leading-tight">
               Hello, {mock.name}
             </h1>
-            <div className="inline-flex items-center gap-3 rounded-3xl bg-white px-5 py-3 text-black shadow-sm">
+            <Link
+              href="/my-avatar"
+              className="inline-flex items-center gap-3 rounded-3xl bg-white px-5 py-3 text-black shadow-sm"
+            >
               <span className="text-3xl text-[#06C755]">⚡</span>
               <div className="flex flex-col">
                 <span className="text-sm font-semibold tracking-wide">
@@ -105,7 +111,7 @@ const Home: NextPage<{ liff: Liff | null; liffError: string | null }> = () => {
                   {mock.todayProgress}%
                 </span>
               </div>
-            </div>
+            </Link>
           </div>
         </div>
 
@@ -118,7 +124,10 @@ const Home: NextPage<{ liff: Liff | null; liffError: string | null }> = () => {
         </div>
 
         {/* Stats card */}
-        <div className="mt-6 rounded-2xl bg-[#2B2C31] text-white border-2 border-black">
+        <Link
+          href="/my-avatar"
+          className="mt-6 block rounded-2xl bg-[#2B2C31] text-white border-2 border-black"
+        >
           <div className="flex items-center justify-between">
             <div className="flex items-center pt-2 pl-5 gap-2">
               <span className="text-2xl">🏆</span>
@@ -171,7 +180,7 @@ const Home: NextPage<{ liff: Liff | null; liffError: string | null }> = () => {
               </div>
             </div>
           </div>
-        </div>
+        </Link>
 
         {/* Quests section */}
         <div className="mt-6 rounded-2xl border-2 border-[#06C755] p-4 bg-white/90 text-black">

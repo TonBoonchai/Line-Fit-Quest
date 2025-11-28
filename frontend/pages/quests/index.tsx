@@ -86,9 +86,12 @@ export default function QuestPage() {
           >
             + QUEST
           </Link>
-          <button className="rounded-xl bg-[#E60000] text-white font-bold py-3 shadow">
+          <Link
+            href="/battle"
+            className="rounded-xl bg-[#E60000] text-white font-bold py-3 shadow text-center"
+          >
             ⚔️ BATTLE WITH FRIENDS
-          </button>
+          </Link>
         </div>
 
         {/* List of quests */}
