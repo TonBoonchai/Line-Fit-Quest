@@ -1,6 +1,7 @@
 import type { Liff } from "@line/liff";
 import type { NextPage } from "next";
 import Head from "next/head";
+import Link from "next/link";
 import type { Quest } from "@/components/quest/QuestList";
 import SwipeableQuest from "@/components/quest/SwipeableQuest";
 
@@ -179,9 +180,12 @@ const Home: NextPage<{ liff: Liff | null; liffError: string | null }> = () => {
               <span className="text-xl">⭐</span>
               <h2 className="text-2xl font-semibold">Quests</h2>
             </div>
-            <button className="rounded-full border border-black/20 bg-white px-4 py-2 text-sm font-semibold shadow-sm">
+            <Link
+              href="/quests"
+              className="rounded-full border border-black/20 bg-white px-4 py-2 text-sm font-semibold shadow-sm"
+            >
               See All →
-            </button>
+            </Link>
           </div>
 
           <SwipeableQuest quests={quests} />
