@@ -25,13 +25,14 @@ function MyApp({ Component, pageProps }: AppProps) {
             if (!liff.isLoggedIn()) {
               // for development
               // console.log("not login");
-              // liff.login();
+              liff.login();
             }
             // use for check token
             if (liff.isLoggedIn()) {
               const idToken = liff.getIDToken();
               {
-                console.log(idToken);
+                console.log("token", idToken);
+                console.log("profile", liff.getProfile());
               }
             }
           })

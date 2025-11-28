@@ -9,14 +9,20 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
-app.use("/quests", questRoute);
-app.use("/generate-image", imageGenRoute);
-app.get("/health", (_req, res) => {
+app.use("/api/quests", questRoute);
+app.use("/api/generate-image", imageGenRoute);
+app.get("/api/health", (_req, res) => {
   res.json({ status: "ok", time: new Date().toISOString() });
 });
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-  console.log("✅ API Key loaded:", !!process.env.GOOGLE_API_KEY); // Debug line
-});
+// For local development
+if (process.env.NODE_ENV !== "production") {
+  const PORT = process.env.PORT || 5000;
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+    console.log("✅ API Key loaded:", !!process.env.GOOGLE_API_KEY); // Debug line
+  });
+}
+
+// Export for Vercel serverless
+export default app;

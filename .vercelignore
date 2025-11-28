@@ -1,0 +1,32 @@
+# Dependencies
+
+node_modules
+\*\*/node_modules
+
+# Build outputs
+
+backend/dist
+frontend/.next
+frontend/out
+
+# Development files
+
+backend/.env
+frontend/.env.local
+\*.log
+.DS_Store
+
+# Test files
+
+**/\*.test.ts
+**/_.test.tsx
+\*\*/_.spec.ts \*_/_.spec.tsx
+
+# Database
+
+backend/drizzle
+
+# Git
+
+.git
+.gitignore

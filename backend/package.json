@@ -11,7 +11,8 @@
     "dev": "drizzle-kit push && nodemon --watch src --ext ts --exec ts-node src/index.ts",
     "dev:nodemon": "drizzle-kit push && nodemon src/index.ts",
     "build": "tsc -p tsconfig.json",
-    "start": "node dist/server.js",
+    "start": "node dist/index.js",
+    "vercel-build": "echo 'Building backend...' && npm run build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
