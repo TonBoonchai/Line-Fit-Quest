@@ -2,8 +2,15 @@ import type { Liff } from "@line/liff";
 import type { NextPage } from "next";
 import Head from "next/head";
 import Link from "next/link";
+import { useState, useEffect } from "react";
 import type { Quest } from "@/components/quest/QuestList";
 import SwipeableQuest from "@/components/quest/SwipeableQuest";
+import {
+  getLiffUserProfile,
+  getUserDisplayName,
+  getUserAvatar,
+  type LiffUserProfile,
+} from "@/services/liff.service";
 
 type MockUser = {
   name: string;
@@ -27,7 +34,24 @@ const mock: MockUser = {
   exp: { current: 8, total: 100 },
 };
 
-const Home: NextPage<{ liff: Liff | null; liffError: string | null }> = () => {
+const Home: NextPage<{ liff: Liff | null; liffError: string | null }> = ({
+  liff,
+}) => {
+  const [userProfile, setUserProfile] = useState<LiffUserProfile | null>(null);
+
+  // Fetch user profile when LIFF is ready
+  useEffect(() => {
+    if (liff) {
+      getLiffUserProfile(liff).then((profile: LiffUserProfile | null) => {
+        setUserProfile(profile);
+      });
+    }
+  }, [liff]);
+
+  // Use LIFF profile data or fallback to mock data
+  const userName = getUserDisplayName(userProfile, mock.name);
+  const userAvatar = getUserAvatar(userProfile, mock.avatarUrl);
+
   const expPercent = Math.min(
     100,
     Math.round((mock.exp.current / mock.exp.total) * 100)
@@ -83,9 +107,9 @@ const Home: NextPage<{ liff: Liff | null; liffError: string | null }> = () => {
             className="relative w-28 h-28 shrink-0 rounded-full grid place-items-center"
           >
             <div className="absolute inset-0 rounded-full ring-4 ring-[#06C755]" />
-            {mock.avatarUrl ? (
+            {userAvatar ? (
               <img
-                src={mock.avatarUrl}
+                src={userAvatar}
                 alt="profile"
                 className="relative z-10 w-28 h-28 rounded-full object-cover"
               />
@@ -96,7 +120,7 @@ const Home: NextPage<{ liff: Liff | null; liffError: string | null }> = () => {
           {/* Right stack */}
           <div className="flex flex-col gap-3 flex-1">
             <h1 className="text-4xl font-bold text-[#06C755] leading-tight">
-              Hello, {mock.name}
+              Hello, {userName}
             </h1>
             <Link
               href="/my-avatar"

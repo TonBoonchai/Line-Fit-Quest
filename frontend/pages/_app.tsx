@@ -21,7 +21,6 @@ function MyApp({ Component, pageProps }: AppProps) {
           .then(() => {
             console.log("LIFF init succeeded.");
             setLiffObject(liff);
-            console.log("token", liff.getIDToken());
             if (!liff.isLoggedIn()) {
               // for development
               // console.log("not login");
