@@ -34,7 +34,7 @@ const Home: NextPage<{ liff: Liff | null; liffError: string | null }> = ({
         >
           LIFF Documentation
         </a>
-        <p>Hello</p>
+        <p>TEST TEST TEST</p>
       </main>
     </div>
   );

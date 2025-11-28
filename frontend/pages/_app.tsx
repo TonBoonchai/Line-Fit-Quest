@@ -2,7 +2,7 @@ import "../styles/globals.css";
 import type { AppProps } from "next/app";
 import type { Liff } from "@line/liff";
 import { useState, useEffect } from "react";
-import { constants } from "buffer";
+import MobileLayout from "../src/layouts/MobileLayout";
 
 function MyApp({ Component, pageProps }: AppProps) {
   const [liffObject, setLiffObject] = useState<Liff | null>(null);
@@ -11,6 +11,7 @@ function MyApp({ Component, pageProps }: AppProps) {
   // Execute liff.init() when the app is initialized
   useEffect(() => {
     // to avoid `window is not defined` error
+    console.log("Hello");
     import("@line/liff")
       .then((liff) => liff.default)
       .then((liff) => {
@@ -20,11 +21,18 @@ function MyApp({ Component, pageProps }: AppProps) {
           .then(() => {
             console.log("LIFF init succeeded.");
             setLiffObject(liff);
+            console.log("token", liff.getIDToken());
             if (!liff.isLoggedIn()) {
-              liff.login();
+              // for development
+              // console.log("not login");
+              // liff.login();
             }
-            if (liff.isLoggedIn) {
+            // use for check token
+            if (liff.isLoggedIn()) {
               const idToken = liff.getIDToken();
+              {
+                console.log(idToken);
+              }
             }
           })
           .catch((error: Error) => {
@@ -38,7 +46,11 @@ function MyApp({ Component, pageProps }: AppProps) {
   // to page component as property
   pageProps.liff = liffObject;
   pageProps.liffError = liffError;
-  return <Component {...pageProps} />;
+  return (
+    <MobileLayout>
+      <Component {...pageProps} />
+    </MobileLayout>
+  );
 }
 
 export default MyApp;
