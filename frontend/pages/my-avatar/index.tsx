@@ -122,7 +122,7 @@ const MyAvatarPage: NextPage<{
 
         {/* Big avatar image */}
         <div className="mt-6 w-full flex justify-center">
-          <div className="w-56 h-56 sm:w-64 sm:h-64 rounded-full ring-8 ring-black overflow-hidden bg-white">
+          <div className="w-56 h-56 sm:w-64 sm:h-64 rounded-full ring-3 ring-black overflow-hidden bg-white">
             <img
               src={userAvatar}
               alt="avatar"
@@ -137,34 +137,6 @@ const MyAvatarPage: NextPage<{
             Just start moving, and enjoy collecting Gold and Health Savings
             Points!
           </p>
-        </div>
-
-        {/* Action buttons */}
-        <div className="mt-6 space-y-4">
-          <Link
-            href="#"
-            className="block rounded-xl bg-[#34D160] text-white font-bold text-center py-3 shadow"
-          >
-            + GET MORE EXP
-          </Link>
-          <Link
-            href="/battle"
-            className="block rounded-xl bg-[#E11D20] text-white font-bold text-center py-3 shadow"
-          >
-            ⚔️ BATTLE WITH FRIENDS
-          </Link>
-          <Link
-            href="/exchange"
-            className="block rounded-xl bg-[#F4C634] text-black font-bold text-center py-3 shadow"
-          >
-            🏅 EXCHANGE PRIZE
-          </Link>
-          <Link
-            href="/health"
-            className="block rounded-xl bg-[#1DA1F2] text-white font-bold text-center py-3 shadow"
-          >
-            👁️ YOUR HEALTH
-          </Link>
         </div>
       </div>
     </>
