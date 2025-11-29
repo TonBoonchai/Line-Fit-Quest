@@ -1,8 +1,11 @@
 import ApiService from "../services/api.service";
 import { Quest } from "../types/quest.type";
 
-export async function generateQuestApi(lineUserId: string): Promise<Quest> {
-  const response = await ApiService.post(`/quests/${lineUserId}`);
+export async function generateQuestApi(
+  lineUserId: string,
+  purpose?: string
+): Promise<Quest> {
+  const response = await ApiService.post(`/quests/${lineUserId}`, { purpose });
   return response.data.quest;
 }
 

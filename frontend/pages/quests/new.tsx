@@ -106,8 +106,9 @@ const NewQuestPage: NextPage<{
         return;
       }
 
-      // Call the generate quest API
-      const newQuest = await generateQuestApi(profile.userId);
+      // Call the generate quest API with user info
+      const purposeText = `User info: Age ${data.age}, Height ${data.height}cm, Weight ${data.weight}kg, Job: ${data.job}, Health concerns: ${data.disease}, Help needed: ${data.help}`;
+      const newQuest = await generateQuestApi(profile.userId, purposeText);
 
       setSuccessMessage(`Quest created successfully! Redirecting...`);
 
