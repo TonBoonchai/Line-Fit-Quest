@@ -3,6 +3,17 @@ import userService from "../services/user.service";
 import UserService from "../services/user.service";
 const router = express.Router();
 
+router.get("/leaderboard", async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit as string) || 10;
+    const users = await UserService.getTopUsers(limit);
+    res.status(200).json({ users });
+  } catch (error) {
+    console.error("Error fetching leaderboard:", error);
+    res.status(500).json({ error: "Failed to fetch leaderboard" });
+  }
+});
+
 router.post("/init", async (req, res) => {
   try {
     const { lineUserId, displayName, pictureUrl } = req.body;

@@ -33,3 +33,8 @@ export async function getUserApi(lineUserId: string): Promise<User> {
   const response = await ApiService.get(`/users/${lineUserId}`);
   return response.data.user;
 }
+
+export async function getLeaderboardApi(limit: number = 10): Promise<User[]> {
+  const response = await ApiService.get(`/users/leaderboard?limit=${limit}`);
+  return response.data.users;
+}

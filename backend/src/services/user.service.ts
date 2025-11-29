@@ -41,4 +41,15 @@ export default class UserService {
 
     return user[0] || null;
   }
+
+  static async getTopUsers(limit: number = 10) {
+    const users = await db
+      .select()
+      .from(usersTable)
+      .orderBy(usersTable.exp)
+      .limit(limit);
+
+    // Sort by exp descending (since orderBy goes ascending)
+    return users.sort((a, b) => b.exp - a.exp);
+  }
 }
