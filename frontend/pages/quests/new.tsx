@@ -106,10 +106,8 @@ const NewQuestPage: NextPage<{
         return;
       }
 
-      const userIdNumber = parseInt(profile.userId, 10) || 1;
-
       // Call the generate quest API
-      const newQuest = await generateQuestApi(userIdNumber);
+      const newQuest = await generateQuestApi(profile.userId);
 
       setSuccessMessage(`Quest created successfully! Redirecting...`);
 

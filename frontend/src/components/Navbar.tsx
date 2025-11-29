@@ -97,7 +97,7 @@ const items: NavItem[] = [
   { href: "/", label: "Home", icon: IconHome },
   { href: "/health", label: "Health", icon: IconHealth },
   { href: "/battle", label: "Battle", icon: IconBattle },
-  { href: "/exchange", label: "Exchange", icon: IconPrize },
+  { href: "/exchange", label: "Leaderboard", icon: IconPrize },
 ];
 
 export default function Navbar() {

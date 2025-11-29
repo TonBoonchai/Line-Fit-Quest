@@ -11,36 +11,17 @@ import {
   getUserAvatar,
   type LiffUserProfile,
 } from "@/services/liff.service";
-import { getUserQuestsApi } from "@/apis/quest.api";
+import { getUserQuestsApi, getTodayQuestStatsApi } from "@/apis/quest.api";
+import { initUserApi, type User } from "@/apis/user.api";
 import type { Quest as ApiQuest } from "@/types/quest.type";
-
-type MockUser = {
-  name: string;
-  avatarUrl?: string;
-  rank: string;
-  coins: number;
-  todayProgress: number; // percent
-  health: number;
-  energy: number;
-  exp: { current: number; total: number };
-};
-
-const mock: MockUser = {
-  name: "Lucy",
-  avatarUrl: "/img/avatar.png", // optional placeholder
-  rank: "Novice",
-  coins: 200,
-  todayProgress: 68,
-  health: 9,
-  energy: 8,
-  exp: { current: 8, total: 100 },
-};
 
 const Home: NextPage<{ liff: Liff | null; liffError: string | null }> = ({
   liff,
 }) => {
   const [userProfile, setUserProfile] = useState<LiffUserProfile | null>(null);
+  const [userData, setUserData] = useState<User | null>(null);
   const [quests, setQuests] = useState<Quest[]>([]);
+  const [todayStats, setTodayStats] = useState({ completed: 0, total: 0 });
 
   // Fetch user profile and quests when LIFF is ready
   useEffect(() => {
@@ -52,9 +33,20 @@ const Home: NextPage<{ liff: Liff | null; liffError: string | null }> = ({
         if (profile) {
           setUserProfile(profile);
 
-          // Fetch user quests
-          const userIdNumber = parseInt(profile.userId, 10) || 1;
-          const fetchedQuests = await getUserQuestsApi(userIdNumber);
+          // Initialize user in backend (creates if not exists)
+          const user = await initUserApi(
+            profile.userId,
+            profile.displayName,
+            profile.pictureUrl
+          );
+          setUserData(user);
+
+          // Fetch user quests using LINE user ID
+          const fetchedQuests = await getUserQuestsApi(profile.userId);
+
+          // Fetch today's quest stats
+          const stats = await getTodayQuestStatsApi(profile.userId);
+          setTodayStats(stats);
 
           // Convert API quests to display format (take first 3)
           const displayQuests: Quest[] = fetchedQuests.slice(0, 3).map((q) => ({
@@ -78,14 +70,14 @@ const Home: NextPage<{ liff: Liff | null; liffError: string | null }> = ({
     fetchData();
   }, [liff]);
 
-  // Use LIFF profile data or fallback to mock data
-  const userName = getUserDisplayName(userProfile, mock.name);
-  const userAvatar = getUserAvatar(userProfile, mock.avatarUrl);
+  // Use LIFF profile data
+  const userName = getUserDisplayName(userProfile, "User");
+  const userAvatar = getUserAvatar(userProfile, undefined);
 
-  const expPercent = Math.min(
-    100,
-    Math.round((mock.exp.current / mock.exp.total) * 100)
-  );
+  // Calculate exp percentage from user data
+  const expPercent = userData
+    ? Math.min(100, Math.round((userData.exp / userData.nextLevelExp) * 100))
+    : 0;
 
   return (
     <div>
@@ -129,7 +121,8 @@ const Home: NextPage<{ liff: Liff | null; liffError: string | null }> = ({
                   Today Progress
                 </span>
                 <span className="text-2xl font-bold text-[#06C755]">
-                  {mock.todayProgress}%
+                  {todayStats.completed}
+                  <span className="text-base font-semibold"> Quest Done</span>
                 </span>
               </div>
             </Link>
@@ -152,13 +145,9 @@ const Home: NextPage<{ liff: Liff | null; liffError: string | null }> = ({
           <div className="flex items-center justify-between">
             <div className="flex items-center pt-2 pl-5 gap-2">
               <span className="text-2xl">🏆</span>
-              <span className="font-semibold tracking-wide">
-                RANK {mock.rank}
+              <span className="font-semibold tracking-wide text-white">
+                RANK Novice
               </span>
-            </div>
-            <div className="flex items-center pt-2 pr-5 gap-2">
-              <span className="text-yellow-300">🪙</span>
-              <span className="font-semibold">{mock.coins}</span>
             </div>
           </div>
 
@@ -176,19 +165,19 @@ const Home: NextPage<{ liff: Liff | null; liffError: string | null }> = ({
                 <div className="flex items-center justify-end gap-2 text-[17px]">
                   <span className="text-red-500">❤</span>
                   <span className="font-semibold text-black">
-                    {mock.health}
+                    {userData?.health || 0}
                   </span>
                 </div>
                 <div className="flex items-center justify-end gap-2 text-[17px]">
                   <span className="text-blue-600">⚡</span>
                   <span className="font-semibold text-black">
-                    {mock.energy}
+                    {userData?.energy || 0}
                   </span>
                 </div>
                 <div>
                   <div className="flex items-center justify-end">
                     <span className="rounded-full bg-[#4BD17C]/92 px-3 py-1 text-sm font-semibold">
-                      {mock.exp.current} / {mock.exp.total}
+                      {userData?.exp || 0} / {userData?.nextLevelExp || 100}
                     </span>
                   </div>
                   <div className="mt-2 h-4 w-full rounded-full bg-gray-300">
