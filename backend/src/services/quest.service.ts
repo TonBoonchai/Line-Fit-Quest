@@ -30,7 +30,7 @@ export default class QuestService {
   static async completeQuest(questId: number) {
     const quest = await db
       .update(questsTable)
-      .set({ completed: true })
+      .set({ completed: true, completedAt: new Date() })
       .where(eq(questsTable.id, questId))
       .returning();
     const user = await db
@@ -60,5 +60,27 @@ export default class QuestService {
         .where(eq(usersTable.id, user[0].id));
     }
     return quest;
+  }
+
+  static async getTodayQuestStats(userId: number) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    const quests = await db
+      .select()
+      .from(questsTable)
+      .where(eq(questsTable.userId, userId));
+    
+    const completedToday = quests.filter(q => {
+      if (!q.completedAt) return false;
+      const completedDate = new Date(q.completedAt);
+      completedDate.setHours(0, 0, 0, 0);
+      return completedDate.getTime() === today.getTime();
+    }).length;
+    
+    return {
+      completed: completedToday,
+      total: quests.length
+    };
   }
 }

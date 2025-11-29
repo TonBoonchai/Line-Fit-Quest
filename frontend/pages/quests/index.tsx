@@ -29,9 +29,8 @@ const QuestPage: NextPage<{ liff: Liff | null; liffError: string | null }> = ({
         const profile = await getLiffUserProfile(liff);
         if (profile) {
           setUserAvatar(getUserAvatar(profile));
-          // Use userId from LIFF profile
-          const userIdNumber = parseInt(profile.userId, 10) || 1;
-          const fetchedQuests = await getUserQuestsApi(userIdNumber);
+          // Use LINE userId directly as string
+          const fetchedQuests = await getUserQuestsApi(profile.userId);
           setQuests(fetchedQuests);
         }
       } catch (error) {
