@@ -1,12 +1,15 @@
 import { db } from "../db";
 import { questsTable, usersTable } from "../db/schema";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import googleGeminiService from "./googleGemini.service";
 
 export default class QuestService {
   // Quest service methods will be implemented here in the future
-  static async generateQuest(userId: number) {
-    const quest = await googleGeminiService.sendMessageToGemini(userId);
+  static async generateQuest(userId: number, purpose: string) {
+    const quest = await googleGeminiService.sendMessageToGemini(
+      userId,
+      purpose
+    );
     const result = await db.insert(questsTable).values({
       userId: userId,
       title: quest.title,
@@ -25,6 +28,15 @@ export default class QuestService {
       .from(questsTable)
       .where(eq(questsTable.userId, userId));
     return quests;
+  }
+
+  static async updateQuest(questId: number, updates: number) {
+    const quest = await db
+      .update(questsTable)
+      .set({ progress: sql`${questsTable.progress} + ${updates}` })
+      .where(eq(questsTable.id, questId))
+      .returning();
+    return quest;
   }
 
   static async completeQuest(questId: number) {

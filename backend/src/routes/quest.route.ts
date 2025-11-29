@@ -3,6 +3,16 @@ import questService from "../services/quest.service";
 import userService from "../services/user.service";
 const router = express.Router();
 
+router.post("/:userId", async (req, res) => {
+  const { userId } = req.params;
+  const { purpose } = req.body;
+  try {
+    const quest = await questService.generateQuest(1, purpose);
+    res.status(200).json({ quest });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to generate quest" });
+  }
+});
 // More specific routes first to prevent conflicts
 router.get("/today/:lineUserId", async (req, res) => {
   const { lineUserId } = req.params;
@@ -43,6 +53,17 @@ router.get("/:lineUserId", async (req, res) => {
     res.status(200).json({ quests });
   } catch (error) {
     res.status(500).json({ error: "Failed to fetch quests" });
+  }
+});
+
+router.put("/update/:questId", async (req, res) => {
+  const { questId } = req.params;
+  const updates = req.body;
+  try {
+    const quest = await questService.updateQuest(Number(questId), updates);
+    res.status(200).json({ quest });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to update quest" });
   }
 });
 
