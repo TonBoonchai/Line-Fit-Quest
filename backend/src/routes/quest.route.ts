@@ -20,11 +20,15 @@ router.get("/today/:lineUserId", async (req, res) => {
 
 router.put("/update/:questId", async (req, res) => {
   const { questId } = req.params;
-  const updates = req.body;
+  const updates = req.body.updates || req.body;
   try {
-    const quest = await questService.updateQuest(Number(questId), updates);
+    const quest = await questService.updateQuest(
+      Number(questId),
+      Number(updates)
+    );
     res.status(200).json({ quest });
   } catch (error) {
+    console.error("Update quest error:", error);
     res.status(500).json({ error: "Failed to update quest" });
   }
 });
@@ -43,6 +47,7 @@ router.post("/:lineUserId", async (req, res) => {
   const { lineUserId } = req.params;
   const { purpose } = req.body || {};
   try {
+    console.log(lineUserId);
     const user = await userService.getUserByLineId(lineUserId);
     if (!user) {
       return res.status(404).json({ error: "User not found" });
