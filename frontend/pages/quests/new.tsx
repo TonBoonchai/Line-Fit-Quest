@@ -1,6 +1,10 @@
 import Head from "next/head";
 import { useRouter } from "next/router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import type { Liff } from "@line/liff";
+import type { NextPage } from "next";
+import { generateQuestApi } from "@/apis/quest.api";
+import { getLiffUserProfile, getUserAvatar } from "@/services/liff.service";
 
 type FormData = {
   age: string;
@@ -11,8 +15,15 @@ type FormData = {
   help: string;
 };
 
-export default function NewQuestPage() {
+const NewQuestPage: NextPage<{
+  liff: Liff | null;
+  liffError: string | null;
+}> = ({ liff }) => {
   const router = useRouter();
+  const [userAvatar, setUserAvatar] = useState<string>("/img/avatar.png");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [successMessage, setSuccessMessage] = useState<string>("");
+  const [errorMessage, setErrorMessage] = useState<string>("");
   const [data, setData] = useState<FormData>({
     age: "",
     height: "",
@@ -24,6 +35,22 @@ export default function NewQuestPage() {
   const [errors, setErrors] = useState<Partial<Record<keyof FormData, string>>>(
     {}
   );
+
+  // Fetch user profile for avatar
+  useEffect(() => {
+    const fetchProfile = async () => {
+      if (!liff) return;
+      try {
+        const profile = await getLiffUserProfile(liff);
+        if (profile) {
+          setUserAvatar(getUserAvatar(profile));
+        }
+      } catch (error) {
+        console.error("Failed to fetch profile:", error);
+      }
+    };
+    fetchProfile();
+  }, [liff]);
 
   const validate = (payload: FormData) => {
     const nextErrors: Partial<Record<keyof FormData, string>> = {};
@@ -56,15 +83,46 @@ export default function NewQuestPage() {
       setErrors((prev) => ({ ...prev, [key]: fieldErrors[key] }));
     };
 
-  const onSubmit = (e: React.FormEvent) => {
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const nextErrors = validate(data);
     setErrors(nextErrors);
     const hasErrors = Object.values(nextErrors).some(Boolean);
     if (hasErrors) return;
 
-    // Placeholder: send to backend later
-    alert(`Submitted data:\n${JSON.stringify(data, null, 2)}`);
+    if (!liff) {
+      setErrorMessage("Unable to connect. Please try again.");
+      return;
+    }
+
+    setIsSubmitting(true);
+    setErrorMessage("");
+    setSuccessMessage("");
+
+    try {
+      const profile = await getLiffUserProfile(liff);
+      if (!profile) {
+        setErrorMessage("Unable to get user profile. Please try again.");
+        return;
+      }
+
+      const userIdNumber = parseInt(profile.userId, 10) || 1;
+
+      // Call the generate quest API
+      const newQuest = await generateQuestApi(userIdNumber);
+
+      setSuccessMessage(`Quest created successfully! Redirecting...`);
+
+      // Redirect to quests page after a short delay
+      setTimeout(() => {
+        router.push("/quests");
+      }, 2000);
+    } catch (error) {
+      console.error("Failed to generate quest:", error);
+      setErrorMessage("Failed to create quest. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -86,7 +144,7 @@ export default function NewQuestPage() {
           <h1 className="text-4xl font-extrabold tracking-widest">QUESTS</h1>
           <div className="w-10 h-10 rounded-full ring-2 ring-white overflow-hidden">
             <img
-              src="/img/avatar.png"
+              src={userAvatar}
               alt="avatar"
               className="w-10 h-10 object-cover"
             />
@@ -95,6 +153,20 @@ export default function NewQuestPage() {
 
         {/* Form Card */}
         <form onSubmit={onSubmit} className="mt-6">
+          {/* Success Message */}
+          {successMessage && (
+            <div className="mb-4 rounded-xl bg-green-500 text-white p-4 text-center font-semibold">
+              ✓ {successMessage}
+            </div>
+          )}
+
+          {/* Error Message */}
+          {errorMessage && (
+            <div className="mb-4 rounded-xl bg-red-500 text-white p-4 text-center font-semibold">
+              ✗ {errorMessage}
+            </div>
+          )}
+
           <div className="rounded-3xl overflow-hidden">
             <div className="bg-[#06C755] text-white text-center py-3 font-semibold">
               INFO
@@ -194,17 +266,19 @@ export default function NewQuestPage() {
                 <button
                   type="submit"
                   disabled={
+                    isSubmitting ||
                     Object.values(errors).some(Boolean) ||
                     Object.values(data).some((v) => v.trim() === "")
                   }
                   className={`w-64 rounded-xl text-black font-bold py-3 shadow ${
+                    isSubmitting ||
                     Object.values(errors).some(Boolean) ||
                     Object.values(data).some((v) => v.trim() === "")
                       ? "bg-gray-300 cursor-not-allowed"
                       : "bg-gradient-to-r from-yellow-400 to-amber-600"
                   }`}
                 >
-                  + QUEST
+                  {isSubmitting ? "GENERATING..." : "+ QUEST"}
                 </button>
               </div>
             </div>
@@ -213,4 +287,6 @@ export default function NewQuestPage() {
       </div>
     </>
   );
-}
+};
+
+export default NewQuestPage;

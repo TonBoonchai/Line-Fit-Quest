@@ -15,7 +15,7 @@ router.post("/:userId", async (req, res) => {
 router.get("/:userId", async (req, res) => {
   const { userId } = req.params;
   try {
-    const quests = await questService.getUserQuests(Number(userId));
+    const quests = await questService.getUserQuests(1);
     res.status(200).json({ quests });
   } catch (error) {
     res.status(500).json({ error: "Failed to fetch quests" });

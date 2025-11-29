@@ -11,6 +11,8 @@ import {
   getUserAvatar,
   type LiffUserProfile,
 } from "@/services/liff.service";
+import { getUserQuestsApi } from "@/apis/quest.api";
+import type { Quest as ApiQuest } from "@/types/quest.type";
 
 type MockUser = {
   name: string;
@@ -38,14 +40,42 @@ const Home: NextPage<{ liff: Liff | null; liffError: string | null }> = ({
   liff,
 }) => {
   const [userProfile, setUserProfile] = useState<LiffUserProfile | null>(null);
+  const [quests, setQuests] = useState<Quest[]>([]);
 
-  // Fetch user profile when LIFF is ready
+  // Fetch user profile and quests when LIFF is ready
   useEffect(() => {
-    if (liff) {
-      getLiffUserProfile(liff).then((profile: LiffUserProfile | null) => {
-        setUserProfile(profile);
-      });
-    }
+    const fetchData = async () => {
+      if (!liff) return;
+
+      try {
+        const profile = await getLiffUserProfile(liff);
+        if (profile) {
+          setUserProfile(profile);
+
+          // Fetch user quests
+          const userIdNumber = parseInt(profile.userId, 10) || 1;
+          const fetchedQuests = await getUserQuestsApi(userIdNumber);
+
+          // Convert API quests to display format (take first 3)
+          const displayQuests: Quest[] = fetchedQuests.slice(0, 3).map((q) => ({
+            id: q.id.toString(),
+            title: q.title,
+            description: q.description,
+            progressPercent: q.goal > 0 ? (q.progress / q.goal) * 100 : 0,
+            progressLabel: `${q.progress} / ${q.goal}`,
+            exp: q.expPoints,
+            heart: q.healthPoints,
+            energy: q.energyPoints,
+          }));
+
+          setQuests(displayQuests);
+        }
+      } catch (error) {
+        console.error("Failed to fetch data:", error);
+      }
+    };
+
+    fetchData();
   }, [liff]);
 
   // Use LIFF profile data or fallback to mock data
@@ -56,39 +86,6 @@ const Home: NextPage<{ liff: Liff | null; liffError: string | null }> = ({
     100,
     Math.round((mock.exp.current / mock.exp.total) * 100)
   );
-  const quests: Quest[] = [
-    {
-      id: "sleep",
-      title: "SLEEP ENOUGH QUEST",
-      description:
-        "This week you seem you do not sleep enough. In this quest, you just sleep at least 9 hr.",
-      progressPercent: 55,
-      progressLabel: "5 / 9 hrs.",
-      exp: 5,
-      heart: 5,
-      energy: 5,
-    },
-    {
-      id: "steps",
-      title: "WALK 6,000 STEPS",
-      description: "Hit your daily step target to earn rewards.",
-      progressPercent: 40,
-      progressLabel: "2,400 / 6,000",
-      exp: 3,
-      heart: 2,
-      energy: 4,
-    },
-    {
-      id: "water",
-      title: "DRINK 2L WATER",
-      description: "Stay hydrated throughout the day.",
-      progressPercent: 70,
-      progressLabel: "1.4 / 2.0 L",
-      exp: 2,
-      heart: 1,
-      energy: 2,
-    },
-  ];
 
   return (
     <div>
@@ -221,7 +218,13 @@ const Home: NextPage<{ liff: Liff | null; liffError: string | null }> = ({
             </Link>
           </div>
 
-          <SwipeableQuest quests={quests} />
+          {quests.length > 0 ? (
+            <SwipeableQuest quests={quests} />
+          ) : (
+            <div className="mt-4 text-center py-8 text-gray-500">
+              <p>No quests available</p>
+            </div>
+          )}
         </div>
       </div>
     </div>

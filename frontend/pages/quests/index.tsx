@@ -2,56 +2,48 @@ import Head from "next/head";
 import QuestCard from "@/components/quest/QuestCard";
 import { useRouter } from "next/router";
 import Link from "next/link";
+import { useState, useEffect } from "react";
+import type { Liff } from "@line/liff";
+import type { NextPage } from "next";
+import { getUserQuestsApi } from "@/apis/quest.api";
+import { getLiffUserProfile, getUserAvatar } from "@/services/liff.service";
+import type { Quest } from "@/types/quest.type";
 
-type Quest = {
-  id: string;
-  title: string;
-  description: string;
-  progressPercent: number;
-  progressLabel?: string;
-  exp: number;
-  heart: number;
-  energy: number;
-};
-
-const mockQuests: Quest[] = [
-  {
-    id: "sleep",
-    title: "SLEEP ENOUGH QUEST",
-    description:
-      "This week you seem you do not sleep enough. In this quest, you just sleep at least 9 hr.",
-    progressPercent: 55,
-    progressLabel: "5 / 9 hrs.",
-    exp: 5,
-    heart: 5,
-    energy: 5,
-  },
-  {
-    id: "run",
-    title: "RUN QUEST",
-    description:
-      "Don’t you get running exercise this week yet? In this quest, you just run total 30 minutes.",
-    progressPercent: 16,
-    progressLabel: "5 / 30 min.",
-    exp: 8,
-    heart: 10,
-    energy: 3,
-  },
-  {
-    id: "detox",
-    title: "DETOX QUEST",
-    description:
-      "Today you have used your phone since morning. In this quest, you just not touch the phone for 30 minutes.",
-    progressPercent: 67,
-    progressLabel: "20 / 30 min.",
-    exp: 8,
-    heart: 10,
-    energy: 3,
-  },
-];
-
-export default function QuestPage() {
+const QuestPage: NextPage<{ liff: Liff | null; liffError: string | null }> = ({
+  liff,
+}) => {
   const router = useRouter();
+  const [quests, setQuests] = useState<Quest[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [userAvatar, setUserAvatar] = useState<string>("/img/avatar.png");
+
+  // Fetch quests when LIFF is ready
+  useEffect(() => {
+    const fetchQuests = async () => {
+      if (!liff) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const profile = await getLiffUserProfile(liff);
+        if (profile) {
+          setUserAvatar(getUserAvatar(profile));
+          // Use userId from LIFF profile
+          const userIdNumber = parseInt(profile.userId, 10) || 1;
+          const fetchedQuests = await getUserQuestsApi(userIdNumber);
+          setQuests(fetchedQuests);
+        }
+      } catch (error) {
+        console.error("Failed to fetch quests:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchQuests();
+  }, [liff]);
+
   return (
     <>
       <Head>
@@ -71,7 +63,7 @@ export default function QuestPage() {
           <h1 className="text-4xl font-extrabold tracking-widest">QUESTS</h1>
           <div className="w-10 h-10 rounded-full ring-2 ring-white overflow-hidden">
             <img
-              src="/img/avatar.png"
+              src={userAvatar}
               alt="avatar"
               className="w-10 h-10 object-cover"
             />
@@ -96,20 +88,37 @@ export default function QuestPage() {
 
         {/* List of quests */}
         <div className="mt-4">
-          {mockQuests.map((q) => (
-            <QuestCard
-              key={q.id}
-              title={q.title}
-              description={q.description}
-              progressPercent={q.progressPercent}
-              progressLabel={q.progressLabel}
-              exp={q.exp}
-              heart={q.heart}
-              energy={q.energy}
-            />
-          ))}
+          {loading ? (
+            <div className="text-center py-8">
+              <p className="text-lg">Loading quests...</p>
+            </div>
+          ) : quests.length === 0 ? (
+            <div className="text-center py-8">
+              <p className="text-lg">No quests available</p>
+            </div>
+          ) : (
+            quests.map((q) => {
+              const progressPercent =
+                q.goal > 0 ? (q.progress / q.goal) * 100 : 0;
+              const progressLabel = `${q.progress} / ${q.goal}`;
+              return (
+                <QuestCard
+                  key={q.id}
+                  title={q.title}
+                  description={q.description}
+                  progressPercent={progressPercent}
+                  progressLabel={progressLabel}
+                  exp={q.expPoints}
+                  heart={q.healthPoints}
+                  energy={q.energyPoints}
+                />
+              );
+            })
+          )}
         </div>
       </div>
     </>
   );
-}
+};
+
+export default QuestPage;
