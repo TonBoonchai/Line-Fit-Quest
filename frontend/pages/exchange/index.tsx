@@ -157,7 +157,7 @@ const LeaderboardPage: NextPage<{
                   className="w-full h-full object-cover"
                 />
               </div>
-              <span className="text-3xl font-bold text-white">2</span>
+              <span className="text-3xl font-bold text-black">2</span>
             </div>
           </div>
 
@@ -191,7 +191,7 @@ const LeaderboardPage: NextPage<{
                   className="w-full h-full object-cover"
                 />
               </div>
-              <span className="text-2xl font-bold text-white">3</span>
+              <span className="text-2xl font-bold text-black">3</span>
             </div>
           </div>
         </div>
