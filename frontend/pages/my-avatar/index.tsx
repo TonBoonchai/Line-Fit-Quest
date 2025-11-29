@@ -86,7 +86,7 @@ const MyAvatarPage: NextPage<{
         {/* Rank card */}
         <div className="mt-4 rounded-3xl overflow-hidden shadow">
           <div className="bg-[#06C755] text-white flex items-center justify-between px-4 py-3">
-            <span className="font-semibold">RANK {userData?.rank || 1}</span>
+            <span className="font-semibold">RANK Novice</span>
           </div>
           <div className="bg-white text-black p-4">
             {isLoading ? (
