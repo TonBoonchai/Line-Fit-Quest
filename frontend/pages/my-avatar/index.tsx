@@ -10,45 +10,53 @@ import {
   getUserAvatar,
   type LiffUserProfile,
 } from "@/services/liff.service";
+import { initUserApi, getUserApi, type User } from "@/apis/user.api";
 
 const MyAvatarPage: NextPage<{
   liff: Liff | null;
   liffError: string | null;
 }> = ({ liff }) => {
   const [userProfile, setUserProfile] = useState<LiffUserProfile | null>(null);
+  const [userData, setUserData] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const mock = {
-    name: "Lucy",
-    rank: "Novice",
-    coins: 200,
-    avatarUrl: "/img/avatar.png",
-    health: 9,
-    energy: 8,
-    exp: { current: 8, total: 100 },
-  };
-
-  // Fetch user profile when LIFF is ready
+  // Fetch user profile and data when LIFF is ready
   useEffect(() => {
-    const fetchProfile = async () => {
+    const fetchData = async () => {
       if (!liff) return;
+
+      setIsLoading(true);
       try {
         const profile = await getLiffUserProfile(liff);
         setUserProfile(profile);
+
+        if (profile?.userId) {
+          // Initialize or get user data from backend
+          const user = await initUserApi(
+            profile.userId,
+            profile.displayName || "User",
+            profile.pictureUrl
+          );
+          setUserData(user);
+        }
       } catch (error) {
-        console.error("Failed to fetch profile:", error);
+        console.error("Failed to fetch data:", error);
+      } finally {
+        setIsLoading(false);
       }
     };
-    fetchProfile();
+    fetchData();
   }, [liff]);
 
-  // Use LIFF profile data or fallback to mock data
-  const userName = getUserDisplayName(userProfile, mock.name);
-  const userAvatar = getUserAvatar(userProfile, mock.avatarUrl);
+  // Use LIFF profile data
+  const userName = getUserDisplayName(userProfile, "User");
+  const userAvatar = getUserAvatar(userProfile, "/img/avatar.png");
 
-  const expPercent = Math.min(
-    100,
-    Math.round((mock.exp.current / mock.exp.total) * 100)
-  );
+  // Calculate exp percentage
+  const expPercent = userData
+    ? Math.min(100, Math.round((userData.exp / userData.nextLevelExp) * 100))
+    : 0;
+
   const router = useRouter();
   return (
     <>
@@ -78,45 +86,49 @@ const MyAvatarPage: NextPage<{
         {/* Rank card */}
         <div className="mt-4 rounded-3xl overflow-hidden shadow">
           <div className="bg-[#06C755] text-white flex items-center justify-between px-4 py-3">
-            <span className="font-semibold">RANK 1 {mock.rank}</span>
-            <div className="flex items-center gap-2">
-              <span className="text-yellow-200">🪙</span>
-              <span className="font-semibold">{mock.coins}</span>
-            </div>
+            <span className="font-semibold">RANK {userData?.rank || 1}</span>
           </div>
           <div className="bg-white text-black p-4">
-            <div className="grid grid-cols-2 gap-y-5">
-              {/* Labels */}
-              <div className="space-y-5 text-[17px] font-medium pl-2">
-                <div>health</div>
-                <div>energy</div>
-                <div>exp</div>
-              </div>
-              {/* Stats */}
-              <div className="space-y-5 pr-5">
-                <div className="flex items-center justify-end gap-2 text-[17px]">
-                  <span className="text-red-500">❤</span>
-                  <span className="font-semibold">{mock.health}</span>
+            {isLoading ? (
+              <div className="text-center py-8">Loading...</div>
+            ) : (
+              <div className="grid grid-cols-2 gap-y-5">
+                {/* Labels */}
+                <div className="space-y-5 text-[17px] font-medium pl-2">
+                  <div>health</div>
+                  <div>energy</div>
+                  <div>exp</div>
                 </div>
-                <div className="flex items-center justify-end gap-2 text-[17px]">
-                  <span className="text-blue-600">⚡</span>
-                  <span className="font-semibold">{mock.energy}</span>
-                </div>
-                <div>
-                  <div className="flex items-center justify-end">
-                    <span className="rounded-full bg-[#4BD17C]/92 px-3 py-1 text-sm font-semibold">
-                      {mock.exp.current} / {mock.exp.total}
+                {/* Stats */}
+                <div className="space-y-5 pr-5">
+                  <div className="flex items-center justify-end gap-2 text-[17px]">
+                    <span className="text-red-500">❤</span>
+                    <span className="font-semibold">
+                      {userData?.health || 0}
                     </span>
                   </div>
-                  <div className="mt-2 h-4 w-full rounded-full bg-gray-300">
-                    <div
-                      className="h-4 rounded-full bg-[#4BD17C]/92"
-                      style={{ width: `${expPercent}%` }}
-                    />
+                  <div className="flex items-center justify-end gap-2 text-[17px]">
+                    <span className="text-blue-600">⚡</span>
+                    <span className="font-semibold">
+                      {userData?.energy || 0}
+                    </span>
+                  </div>
+                  <div>
+                    <div className="flex items-center justify-end">
+                      <span className="rounded-full bg-[#4BD17C]/92 px-3 py-1 text-sm font-semibold">
+                        {userData?.exp || 0} / {userData?.nextLevelExp || 100}
+                      </span>
+                    </div>
+                    <div className="mt-2 h-4 w-full rounded-full bg-gray-300">
+                      <div
+                        className="h-4 rounded-full bg-[#4BD17C]/92"
+                        style={{ width: `${expPercent}%` }}
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
 
