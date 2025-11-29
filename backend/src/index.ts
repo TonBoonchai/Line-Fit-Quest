@@ -9,7 +9,19 @@ import userRoute from "./routes/user.route";
 import battleRoute from "./routes/battle.route";
 const app = express();
 
-app.use(cors());
+// Configure CORS for Vercel deployment
+app.use(
+  cors({
+    origin: true, // Allow all origins in production, or specify your frontend URL
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+  })
+);
+
+// Handle preflight requests
+app.options("*", cors());
+
 app.use(express.json());
 app.use("/api/quests", questRoute);
 app.use("/api/generate-image", imageGenRoute);
