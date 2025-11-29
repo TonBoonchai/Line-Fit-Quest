@@ -1,8 +1,22 @@
 import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import { useState, useEffect } from "react";
+import type { Liff } from "@line/liff";
+import type { NextPage } from "next";
+import {
+  getLiffUserProfile,
+  getUserDisplayName,
+  getUserAvatar,
+  type LiffUserProfile,
+} from "@/services/liff.service";
 
-export default function MyAvatarPage() {
+const MyAvatarPage: NextPage<{
+  liff: Liff | null;
+  liffError: string | null;
+}> = ({ liff }) => {
+  const [userProfile, setUserProfile] = useState<LiffUserProfile | null>(null);
+
   const mock = {
     name: "Lucy",
     rank: "Novice",
@@ -12,6 +26,25 @@ export default function MyAvatarPage() {
     energy: 8,
     exp: { current: 8, total: 100 },
   };
+
+  // Fetch user profile when LIFF is ready
+  useEffect(() => {
+    const fetchProfile = async () => {
+      if (!liff) return;
+      try {
+        const profile = await getLiffUserProfile(liff);
+        setUserProfile(profile);
+      } catch (error) {
+        console.error("Failed to fetch profile:", error);
+      }
+    };
+    fetchProfile();
+  }, [liff]);
+
+  // Use LIFF profile data or fallback to mock data
+  const userName = getUserDisplayName(userProfile, mock.name);
+  const userAvatar = getUserAvatar(userProfile, mock.avatarUrl);
+
   const expPercent = Math.min(
     100,
     Math.round((mock.exp.current / mock.exp.total) * 100)
@@ -91,7 +124,7 @@ export default function MyAvatarPage() {
         <div className="mt-6 w-full flex justify-center">
           <div className="w-56 h-56 sm:w-64 sm:h-64 rounded-full ring-8 ring-black overflow-hidden bg-white">
             <img
-              src={mock.avatarUrl}
+              src={userAvatar}
               alt="avatar"
               className="w-full h-full object-cover"
             />
@@ -136,4 +169,6 @@ export default function MyAvatarPage() {
       </div>
     </>
   );
-}
+};
+
+export default MyAvatarPage;
