@@ -2,6 +2,8 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import { title } from "process";
 import { usersTable } from "../db/schema";
 import { GoogleGenAI } from "@google/genai";
+import { eq } from "drizzle-orm";
+import { db } from "../db";
 
 export default class googleGeminiService {
   static genAI = (() => {
@@ -15,26 +17,25 @@ export default class googleGeminiService {
     return new GoogleGenerativeAI(apiKey);
   })();
 
-  static async sendMessageToGemini(userId: number) {
+  static async sendMessageToGemini(userId: number, purpose: string) {
     try {
       const model = this.genAI.getGenerativeModel({
         model: "gemini-2.5-flash",
       });
-      /*const user = await db
-      .select()
-      .from(usersTable)
-      .where(eq(usersTable.id, userId))
-      .limit(1);
+      const user = await db
+        .select()
+        .from(usersTable)
+        .where(eq(usersTable.id, userId))
+        .limit(1);
 
-    if (!user || user.length === 0) {
-      throw new Error(`User with ID ${userId} not found`);
-    }
+      if (!user || user.length === 0) {
+        throw new Error(`User with ID ${userId} not found`);
+      }
 
-    const userData = user[0];
-    */
+      const userData = user[0];
 
-      const prompt = `Generate a quest based on the following user data:
-      Male user, age 25, this weekend wants to improve his fitness and health.
+      const prompt = `Generate a quest based on the following user purpose:
+      ${purpose} (not too hard)
       The quest should include a title(length<50), description(length<80), Health Points(2-10), Energy Points(2-10), Goal is how amount of activity user must do(2-5), and Experience points(5-10).
      
       example format:
@@ -91,10 +92,10 @@ export default class googleGeminiService {
     }
   }
 
-  static async generateImage(message: string) {
+  static async sendImage(message: string) {
     try {
       const model = this.genAI.getGenerativeModel({
-        model: "gemini-2.5-flash-preview-image",
+        model: "gemini-2.5-flash",
       });
       const prompt = `Generate an image based on this description: ${message}`;
       const result = await model.generateContent(prompt);
