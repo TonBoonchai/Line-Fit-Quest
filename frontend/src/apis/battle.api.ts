@@ -21,7 +21,9 @@ export interface BattleRanking {
 }
 
 export async function createBattleApi(lineUserId: string): Promise<Battle> {
-  const response = await ApiService.post(`/battles/create/${lineUserId}`);
+  const response = await ApiService.post(
+    `${process.env.NEXT_PUBLIC_BACKEND_URL}/battles/create/${lineUserId}`
+  );
   return response.data.battle;
 }
 
@@ -29,23 +31,30 @@ export async function joinBattleApi(
   inviteCode: string,
   lineUserId: string
 ): Promise<Battle> {
-  const response = await ApiService.post(`/battles/join/${inviteCode}`, {
-    lineUserId,
-  });
+  const response = await ApiService.post(
+    `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/battles/join/${inviteCode}`,
+    {
+      lineUserId,
+    }
+  );
   return response.data.battle;
 }
 
 export async function getActiveBattleApi(
   lineUserId: string
 ): Promise<Battle | null> {
-  const response = await ApiService.get(`/battles/active/${lineUserId}`);
+  const response = await ApiService.get(
+    `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/battles/active/${lineUserId}`
+  );
   return response.data.battle;
 }
 
 export async function getBattleRankingsApi(
   battleId: number
 ): Promise<BattleRanking[]> {
-  const response = await ApiService.get(`/battles/rankings/${battleId}`);
+  const response = await ApiService.get(
+    `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/battles/rankings/${battleId}`
+  );
   return response.data.rankings;
 }
 
@@ -54,7 +63,7 @@ export async function leaveBattleApi(
   battleId: number
 ): Promise<{ success: boolean }> {
   const response = await ApiService.post(
-    `/battles/leave/${lineUserId}/${battleId}`
+    `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/battles/leave/${lineUserId}/${battleId}`
   );
   return response.data;
 }

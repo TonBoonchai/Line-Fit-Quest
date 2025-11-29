@@ -20,7 +20,7 @@ export default class googleGeminiService {
   static async sendMessageToGemini(userId: number, purpose: string) {
     try {
       const model = this.genAI.getGenerativeModel({
-        model: "gemini-2.5-flash",
+        model: "gemini-2.5-flash-lite",
       });
       const user = await db
         .select()
