@@ -49,3 +49,27 @@ export const questsTable = pgTable("quests", {
   completedAt: timestamp("completed_at"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
+
+export const battlesTable = pgTable("battles", {
+  id: serial("id").primaryKey(),
+  creatorId: integer("creator_id")
+    .notNull()
+    .references(() => usersTable.id, { onDelete: "cascade" }),
+  inviteCode: text("invite_code").notNull().unique(),
+  startDate: timestamp("start_date").notNull().defaultNow(),
+  endDate: timestamp("end_date").notNull(),
+  status: text("status").notNull().default("active"), // active, completed
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export const battleParticipantsTable = pgTable("battle_participants", {
+  id: serial("id").primaryKey(),
+  battleId: integer("battle_id")
+    .notNull()
+    .references(() => battlesTable.id, { onDelete: "cascade" }),
+  userId: integer("user_id")
+    .notNull()
+    .references(() => usersTable.id, { onDelete: "cascade" }),
+  startingExp: integer("starting_exp").notNull(),
+  joinedAt: timestamp("joined_at").notNull().defaultNow(),
+});

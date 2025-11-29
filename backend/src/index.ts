@@ -6,6 +6,7 @@ import cors from "cors";
 import questRoute from "./routes/quest.route"; // ← Now this will have access to env vars
 import imageGenRoute from "./routes/imageGen.route";
 import userRoute from "./routes/user.route";
+import battleRoute from "./routes/battle.route";
 const app = express();
 
 app.use(cors());
@@ -13,6 +14,7 @@ app.use(express.json());
 app.use("/api/quests", questRoute);
 app.use("/api/generate-image", imageGenRoute);
 app.use("/api/users", userRoute);
+app.use("/api/battles", battleRoute);
 app.get("/api/health", (_req, res) => {
   res.json({ status: "ok", time: new Date().toISOString() });
 });
