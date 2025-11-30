@@ -6,14 +6,14 @@
       "use": "@vercel/next"
     },
     {
-      "src": "backend/src/index.ts",
+      "src": "backend/api/index.ts",
       "use": "@vercel/node"
     }
   ],
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "backend/src/index.ts",
+      "dest": "backend/api/index.ts",
       "headers": {
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, PATCH, OPTIONS",
