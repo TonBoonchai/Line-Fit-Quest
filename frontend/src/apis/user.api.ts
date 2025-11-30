@@ -21,27 +21,20 @@ export async function initUserApi(
   displayName: string,
   pictureUrl?: string
 ): Promise<User> {
-  const response = await ApiService.post(
-    `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/init`,
-    {
-      lineUserId,
-      displayName,
-      pictureUrl,
-    }
-  );
+  const response = await ApiService.post(`/users/init`, {
+    lineUserId,
+    displayName,
+    pictureUrl,
+  });
   return response.data.user;
 }
 
 export async function getUserApi(lineUserId: string): Promise<User> {
-  const response = await ApiService.get(
-    `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/${lineUserId}`
-  );
+  const response = await ApiService.get(`/users/${lineUserId}`);
   return response.data.user;
 }
 
 export async function getLeaderboardApi(limit: number = 10): Promise<User[]> {
-  const response = await ApiService.get(
-    `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/leaderboard?limit=${limit}`
-  );
+  const response = await ApiService.get(`/users/leaderboard?limit=${limit}`);
   return response.data.users;
 }
