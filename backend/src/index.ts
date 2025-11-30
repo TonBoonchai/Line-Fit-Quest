@@ -20,11 +20,11 @@ app.use(
 );
 
 app.use(express.json());
-app.use("/api/quests", questRoute);
-app.use("/api/generate-image", imageGenRoute);
-app.use("/api/users", userRoute);
-app.use("/api/battles", battleRoute);
-app.get("/api/health", (_req, res) => {
+app.use("/quests", questRoute);
+app.use("/generate-image", imageGenRoute);
+app.use("/users", userRoute);
+app.use("/battles", battleRoute);
+app.get("/health", (_req, res) => {
   res.json({ status: "ok", time: new Date().toISOString() });
 });
 
